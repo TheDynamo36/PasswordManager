@@ -1,4 +1,5 @@
 
+import javax.swing.JOptionPane;
 import passwordmanager.model.User;
 import passwordmanager.model.DataSource;
 
@@ -111,6 +112,11 @@ public class Connect extends javax.swing.JFrame {
         getContentPane().add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 140, 190, -1));
 
         passwordField.setOpaque(false);
+        passwordField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                passwordFieldActionPerformed(evt);
+            }
+        });
         getContentPane().add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 180, 190, -1));
 
         backgroudImage.setBackground(new java.awt.Color(52, 73, 94));
@@ -149,13 +155,28 @@ user = dataSource.queryUser(username, password);
     private void signupButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signupButtonActionPerformed
         // TODO add your handling code here:
         if(jTextField1.getText().isEmpty() || new String(passwordField.getPassword()).isEmpty()){
-            System.out.println("Please Fill The Details");
+            //System.out.println("Please Fill The Details");
+            JOptionPane.showMessageDialog(this, "Please fill the form", "Incomplete Details",HEIGHT);
         return;
         }
-       dataSource.newUser(jTextField1.getText(), new String(passwordField.getPassword()));
-        System.out.println("Create Account Successfully");
+       if(dataSource.newUser(jTextField1.getText(), new String(passwordField.getPassword()))){
+        //System.out.println("Create Account Successfully");
+        JOptionPane.showMessageDialog(this, "Successful", "Welcome",HEIGHT);
         loginButton.doClick();
+        return;
+       }
+        System.out.println("Cannot Create Account, UserName Already Taken");
+        JOptionPane.showMessageDialog(this, "UserName already taken!", "Error",HEIGHT);
     }//GEN-LAST:event_signupButtonActionPerformed
+
+    private void passwordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordFieldActionPerformed
+        // TODO add your handling code here:
+        if(loginButton.isVisible())
+            loginButton.doClick();
+        else
+            signupButton.doClick();
+        
+    }//GEN-LAST:event_passwordFieldActionPerformed
 
     /**
      * @param args the command line arguments

@@ -5,12 +5,13 @@
  */
 package passwordmanager.model;
 
-
+import static java.awt.image.ImageObserver.HEIGHT;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 
 /**
@@ -42,6 +43,7 @@ public class DataSource {
         } catch (Exception ex) {
             Logger.getLogger(DataSource.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println(""+ex.getMessage());
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "SERVER ERROR",HEIGHT);
         }
     }
     
@@ -76,7 +78,7 @@ public class DataSource {
             st.executeUpdate("ALTER TABLE "+username+" MODIFY  "+COLUMN_USERNAME+" varchar(50) COLLATE utf8_bin;");
             return true;
         }catch(SQLException e){
-            System.out.println("Cannot create table : "+e.getMessage());
+            System.out.println("Cannot add User : "+e.getMessage());
             return false;
         }finally{
            try{
@@ -86,6 +88,7 @@ public class DataSource {
                System.out.println(e.getMessage());
            }
         }
+        
     }
     
     
@@ -96,13 +99,14 @@ public class DataSource {
         try{
             if(user != null){
                 st = conn.createStatement();
-                st.executeUpdate("INSERT INTO "+user+" VALUES('"+website+"','"+email+"','"+password+"','"+username+"','"+phone+"');");
+                st.executeUpdate("INSERT INTO "+user+" VALUES('"+website+"','"+email+"','"+password+"','"+username+"',"+phone+");");
                 st.close();
                 return true;
             }
             return false;
         }catch(Exception e){
             System.out.println("Cannot Insert data :"+e.getMessage());
+            JOptionPane.showMessageDialog(null, e.getMessage(),"Server Error",HEIGHT);
             return false;
         }
     }
@@ -125,12 +129,14 @@ public class DataSource {
               return user;
             }
               System.out.println("Wrong Credentials");
+              JOptionPane.showMessageDialog(null, "Wrong Credentials");
               return user;
           }
           System.out.println("Wrong UserName or Password");
           return user;
       }catch(SQLException e){
           System.out.println("Query failed :"+e.getMessage());
+          JOptionPane.showMessageDialog(null, e.getMessage());
         }finally{
            try{
                if(st != null)
@@ -165,6 +171,7 @@ public class DataSource {
           return datas;
       }catch(SQLException e){
           System.out.println("Query failed :"+e.getMessage());
+          JOptionPane.showMessageDialog(null, e.getMessage());
         }
       return null;
   }
@@ -173,7 +180,7 @@ public class DataSource {
        Statement st = null;
       ResultSet rs = null;
       String password = null;
-      String query = "select "+COLUMN_PASSWORD+" from "+username+" where website ='"+website+"' ;";
+      String query = "select * from "+username+" where website ='"+website+"' ;";
       try{
           st = conn.createStatement();
          rs = st.executeQuery(query);
@@ -186,6 +193,7 @@ public class DataSource {
           return password;
       }catch(SQLException e){
           System.out.println("Query failed :"+e.getMessage());
+          JOptionPane.showMessageDialog(null, e.getMessage());
         }
        return password;
    }
@@ -202,6 +210,7 @@ public class DataSource {
           return true;
       }catch(SQLException e){
           System.out.println("Query failed :"+e.getMessage());
+          JOptionPane.showMessageDialog(null, e.getMessage());
         }
       return false;
    }
@@ -217,8 +226,32 @@ public class DataSource {
           return true;
       }catch(SQLException e){
           System.out.println("Query failed :"+e.getMessage());
+          JOptionPane.showMessageDialog(null, e.getMessage());
         }
       return false;
+   }
+   
+   public Data query(String username, String website, String email){
+       Statement st = null;
+       ResultSet rs = null;
+       String query = "select * from "+username+" where website ='"+website+"' and email = '"+email+"';";
+      try{
+          st = conn.createStatement();
+          rs = st.executeQuery(query);
+          Data data = new Data();
+          if(rs.next()){
+              data.setData(rs.getString(COLUMN_EMAIL), rs.getString(COLUMN_PASSWORD), 
+              rs.getString(COLUMN_WEBSITE),rs.getString(COLUMN_USERNAME) , 
+              rs.getString(COLUMN_PHONE));
+          }
+          st.close();
+          rs.close();
+          return data;
+      }catch(SQLException e){
+          System.out.println("Query failed :"+e.getMessage());
+          JOptionPane.showMessageDialog(null, e.getMessage());
+        }
+       return null;
    }
    
 }

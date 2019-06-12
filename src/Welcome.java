@@ -9,6 +9,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.JOptionPane;
 import passwordmanager.model.Data;
 import passwordmanager.model.User;
 import passwordmanager.model.DataSource;
@@ -94,6 +95,7 @@ private DataSource dataS;
         UPDATE = new javax.swing.JButton();
         DELETE = new javax.swing.JButton();
         passwordField = new javax.swing.JPasswordField();
+        FETCH = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
 
@@ -105,7 +107,8 @@ private DataSource dataS;
         userField.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         getContentPane().add(userField, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, 650, 19));
 
-        table.setBackground(new java.awt.Color(55, 71, 79));
+        table.setBackground(new java.awt.Color(51, 51, 51));
+        table.setForeground(new java.awt.Color(255, 255, 255));
         table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -195,6 +198,15 @@ private DataSource dataS;
             }
         });
 
+        FETCH.setBackground(new java.awt.Color(55, 71, 79));
+        FETCH.setForeground(new java.awt.Color(255, 255, 255));
+        FETCH.setText("FETCH");
+        FETCH.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                FETCHActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -226,10 +238,12 @@ private DataSource dataS;
                             .addComponent(emailField, javax.swing.GroupLayout.DEFAULT_SIZE, 225, Short.MAX_VALUE)
                             .addComponent(passwordField))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 161, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(UPDATE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(DELETE)
-                    .addComponent(ADD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(UPDATE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(DELETE)
+                        .addComponent(ADD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(FETCH, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(126, 126, 126))
         );
         jPanel1Layout.setVerticalGroup(
@@ -253,12 +267,13 @@ private DataSource dataS;
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
+                    .addComponent(jLabel4)
+                    .addComponent(FETCH))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(phoneField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5))
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addContainerGap(9, Short.MAX_VALUE))
         );
 
         tab1.addTab("Add New", jPanel1);
@@ -284,6 +299,7 @@ private DataSource dataS;
     private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
 int selected_column = table.getSelectedColumn();
 int selected_row = table.getSelectedRow();
+FETCH.doClick();
 if(selected_column == 1){
    String email = (String)table.getValueAt(selected_row, 1);
    copy(email);
@@ -301,18 +317,20 @@ copy(password);
         String password = new String(passwordField.getPassword());
         String usernamelocal = usernameField.getText();
         String phone = phoneField.getText();
-        if(!(website.isEmpty() && email.isEmpty() && password.isEmpty())){
+        if(!(website.isEmpty() || email.isEmpty() || passwordField.getPassword().length ==0)){
             if(!dataS.addData(username, email, password, website, usernamelocal, phone))
             {
                 System.out.println("Error While Adding Data");
                 return;
             }
             System.out.println("Added Successfully");
+            JOptionPane.showMessageDialog(null, "Added Successfully");
             clear();
             fetch();
             tab1.setSelectedIndex(0);
         }else
-            System.out.println("Please fill the details");
+            //System.out.println("Please fill the details");
+        JOptionPane.showMessageDialog(null, "Please fill the details");
         
     }//GEN-LAST:event_ADDActionPerformed
 
@@ -326,12 +344,16 @@ copy(password);
         if(!dataS.updateData(username, website, password, usernamelocal, phone))
         {
             System.out.println("Update Failed");
+            editable(true);
             return;
         }
         System.out.println("Successfully Updated");
+        JOptionPane.showMessageDialog(null, "Successfully Updated");
         clear();    fetch();    tab1.setSelectedIndex(0);
         }else
             System.out.println("Please enter Website");
+            editable(true);
+        JOptionPane.showMessageDialog(null, "Please Select a Row and press FETCH button");
     }//GEN-LAST:event_UPDATEActionPerformed
 
     private void DELETEActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DELETEActionPerformed
@@ -340,13 +362,17 @@ copy(password);
         String email = emailField.getText();
         if((website.isEmpty() && email.isEmpty()) ){
             System.out.println("Please fill Website and Email field");
+            JOptionPane.showMessageDialog(null, "Please Select a Row and press FETCH button");
         }else{
             if(!dataS.deleteData(username, website, email))
         {
             System.out.println("Delete Failed");
+            editable(true);
             return;
         }
         System.out.println("Successfully Deleted");
+        JOptionPane.showMessageDialog(null, "Successfully Deleted");
+        editable(true);
         clear();    fetch();    tab1.setSelectedIndex(0);
         }
             
@@ -361,21 +387,51 @@ copy(password);
         this.dispose();
         System.exit(0);
     }//GEN-LAST:event_jButton1ActionPerformed
-private void copy(String data){
+
+    private void FETCHActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FETCHActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel m =(DefaultTableModel) table.getModel();
+        if(table.getSelectedRow() < 0){
+            System.out.println("Please Select a Row to get Values");
+            JOptionPane.showMessageDialog(null, "Please Select a Row and press FETCH button");
+        }else{
+            String website = (String) m.getValueAt(table.getSelectedRow(), 0);
+            String email = (String) m.getValueAt(table.getSelectedRow(),1);
+            Data data = new Data();
+            if(!(website == "" && email == "")){
+                data = dataS.query(username, website, email);
+                editable(false);
+                emailField.setText(data.getEmail());
+                websiteField.setText(data.getWebsite());
+                passwordField.setText(data.getPassword());
+                usernameField.setText(data.getUsername());
+                phoneField.setText(data.getPhone());
+            }
+        }
+        
+    }//GEN-LAST:event_FETCHActionPerformed
+
+    
+    private void copy(String data){
     StringBuilder sbf = new StringBuilder();
     sbf.append(data);
-stsel = new StringSelection(sbf.toString());
-clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-clipboard.setContents(stsel, stsel);
-}
-
-private void clear(){
+    stsel = new StringSelection(sbf.toString());
+    clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+    clipboard.setContents(stsel, stsel);
+    }
+    
+    private void clear(){
     websiteField.setText("");
     emailField.setText("");
     passwordField.setText("");
     usernameField.setText("");
     phoneField.setText("");
-}
+    }
+    
+    public void editable(boolean value){
+        websiteField.setEditable(value);
+        emailField.setEditable(value);
+    }
     /**
      * @param args the command line arguments
      */
@@ -414,6 +470,7 @@ private void clear(){
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ADD;
     private javax.swing.JButton DELETE;
+    private javax.swing.JButton FETCH;
     private javax.swing.JButton UPDATE;
     private javax.swing.JTextField emailField;
     private javax.swing.JButton jButton1;
